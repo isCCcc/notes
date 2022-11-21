@@ -49,9 +49,9 @@ Promise.prototype.then = function (onResolved, onRejected) {
     const self = this
     // 返回一个全新的 Promise 对象
     // 该 Promise 的状态由回调函数的返回值状态决定
-    return new Promise((resolve, reject) => {   // 修改一 --------------------------
+    return new Promise((resolve, reject) => {
         //封装callBack函数，用于处理返回值的状态和返回值
-        function callBack(type) {   // 修改二 --------------------------
+        function callBack(type) {
             try {
                 let result = type(self.PromiseResult)
                 if (result instanceof Promise) {  // 如果返回值是一个 Promise，则一定可以调用then方法
@@ -67,11 +67,18 @@ Promise.prototype.then = function (onResolved, onRejected) {
         // 调用回调函数
         // 此时的 this 为实例对象 p
         if (this.PromiseState === 'fulfilled') {
-            callBack(onResolved)  // 修改三 --------------------------
+            callBack(onResolved)
         } else if (this.PromiseState === 'rejected') {
             callBack(onRejected)
         } else if (this.PromiseState === 'pending') {  // 拦截异步情况
-            this.callBack.push({onResolved, onRejected})
+            this.callBack.push({
+                onResolved:function (){
+                    callBack(onResolved)
+                },
+                onRejected:function (){
+                    callBack(onRejected)
+                }
+            })
         }
     })
 }

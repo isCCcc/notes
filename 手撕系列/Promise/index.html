@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>手撕Promise - 8.同步任务 then 返回结果</title>
+    <title>手撕Promise - 9.异步任务 then 返回结果</title>
         <script src="./promise.js"></script>
 </head>
 <body>
 <script>
     let p = new Promise((resolve, reject) => {
-        resolve('OK')
-        // reject('error')
-        // throw 'err'
-    })
-
-    let res = p.then(value => {
-        // return 123
-        return new Promise((resolve, reject) => {
-            reject('OK')
+        setTimeout(()=>{
+            resolve('OK')
+            // reject('error')
         })
+    })
+    console.log(p);
+    let res = p.then(value => {
+        return 123
+        // return new Promise((resolve, reject) => {
+        //     reject('OK')
+        // })
         // throw '123'
     }, reason => {
         console.warn(reason)

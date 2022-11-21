@@ -2,21 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>手撕Promise - 5.状态只能修改一次</title>
+    <title>手撕Promise - 5.then 方法执行回调</title>
     <script src="./promise.js"></script>
 </head>
 <body>
 <script>
     let p = new Promise((resolve, reject) => {
-        resolve('OK')
+        // resolve('OK')
         reject('error')
-        // throw 'err'
+        throw 'err'
     })
-    console.log(p);
     p.then(value => {
         console.log(value)
     }, reason => {
-        console.log(reason)
+        console.warn(reason)
     })
 </script>
 </body>

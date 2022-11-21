@@ -137,3 +137,35 @@ let p = new Promise((resolve, reject) => {
     // throw 'err'
 })
 ```
+
+### 5 - then 方法执行回调基础实现
+
+> 1. 修改`Promise.prototype.then`方法
+> 2. 传入`then(成功回调,失败回调)`,当调用then后,会判断当前`this.PromiseState`的状态,当其为成功时调用`成功回调`,失败时调用`失败回调`
+
+```js
+    //html调用----------------------------------------
+let p = new Promise((resolve, reject) => {
+    // resolve('OK');// reject("Error");
+    throw "ERROR";
+});
+p.then(
+    value => {
+        console.log(value);
+    },
+    reason => {
+        console.warn(reason);
+    }
+)
+// promise.js修改与实现--------------------------------------
+//添加 then 方法
+Promise.prototype.then = function (onResolved, onRejected) {
+    //调用回调函数  PromiseState
+    if (this.PromiseState === 'fulfilled') {
+        onResolved(this.PromiseResult);
+    }
+    if (this.PromiseState === 'rejected') {
+        onRejected(this.PromiseResult);
+    }
+}
+```

@@ -317,3 +317,55 @@ Promise.prototype.then = function (onResolved, onRejected) {
     }
 }
 ```
+
+### 8 - 同步任务 then 返回结果
+
+>1. 在之前的then运行结果中得知,我们使用  [ then ] 后的返回结果是其回调函数的返回结果,而我们需要的返回结果是一个新的promise对象
+> 
+>   解:所以我们在then中`return new Promise()`,使其得到的是一个新的promise对象
+> 
+>2. 在为`解决问题1`后产生一个新问题:新的promise对象因为没有用`rejerect与resolve`方法,导致返回的状态一直是`pending`
+> 
+>   解:在新的promise中判断`运行回调函数`后的返回值是什么,然后根据其不同类型给其赋予不同状态
+> 
+>   ​	Ⅰ-`if(result instanceof Promise)`:返回值一个新的②promise对象(因为是新的promise的回调函数返回值,称`②promise对象`),在返回值(因为是promise对象)的`.then()`回调函数中使用rejerect与resolve方法,将其`自身的状态`赋予外层的promise,
+> 
+>   ​	即 回调函数中的promise 赋值 给then返回值 ,  所以 `最终返回状态==回调函数中的新promise状态`
+> 
+>   ​	Ⅱ-如果返回值是一个`非promise`对象,返回状态设置为成功
+> 
+>   ​	Ⅲ-如果返回值是一个异常,返回状态设置为失败
+
+```javascript
+// 添加 .then 方法
+Promise.prototype.then = function (onResolved, onRejected) {
+    const self = this
+    // 返回一个全新的 Promise 对象
+    // 该 Promise 的状态由回调函数的返回值状态决定
+    return new Promise((resolve, reject) => {   // 修改一 --------------------------
+        //封装callBack函数，用于处理返回值的状态和返回值
+        function callBack(type) {   // 修改二 --------------------------
+            try {
+                let result = type(self.PromiseResult)
+                if (result instanceof Promise) {  // 如果返回值是一个 Promise，则一定可以调用then方法
+                    result.then(v => resolve(v), r => reject(r))
+                } else {  // 返回一个普通 对象 / 值，则直接返回一个成功的 Promise
+                    resolve(result)
+                }
+            } catch (e) {
+                reject(e)
+            }
+        }
+
+        // 调用回调函数
+        // 此时的 this 为实例对象 p
+        if (this.PromiseState === 'fulfilled') {
+            callBack(onResolved)  // 修改三 --------------------------
+        } else if (this.PromiseState === 'rejected') {
+            callBack(onRejected)
+        } else if (this.PromiseState === 'pending') {  // 拦截异步情况
+            this.callBack.push({onResolved, onRejected})
+        }
+    })
+}
+```

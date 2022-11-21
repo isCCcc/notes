@@ -2,31 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>手撕Promise - 7.指定多个回调</title>
-    <script src="./promise.js"></script>
+    <title>手撕Promise - 8.同步任务 then 返回结果</title>
+        <script src="./promise.js"></script>
 </head>
 <body>
 <script>
     let p = new Promise((resolve, reject) => {
-        // resolve('OK')
+        resolve('OK')
         // reject('error')
         // throw 'err'
-        setTimeout(() => {
-            resolve('ok')
-            // reject('error')
-        })
     })
-    p.then(value => {
-        console.log(value)
+
+    let res = p.then(value => {
+        // return 123
+        return new Promise((resolve, reject) => {
+            reject('OK')
+        })
+        // throw '123'
     }, reason => {
         console.warn(reason)
     })
-    p.then(value => {
-        alert(value);
-    }, reason => {
-        alert(reason);
-    });
-    console.log(p);
+    console.log(res);
 </script>
 </body>
 </html>

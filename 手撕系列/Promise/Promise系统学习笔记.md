@@ -415,3 +415,43 @@ Promise.prototype.then = function (onResolved, onRejected) {
     })
 }
 ```
+
+### 10 - catch 方法与异常穿透与值传递
+
+>1. 异常穿透:添加`catch 方法 `,并且需要进行回调函数为`undefined`的处理
+>
+>2. 当前代码中`then()`方法中若只传一个回调或者不传回调函数时,运行代码会报错,因为运行时调用的回调函数是`undefined`
+>
+> 解:进行回调函数判断,当其为空时,基于默认回调函数内容:`直接往外抛出`这样下方的`then() or catch()`就可以承接到异常或者值
+
+
+```javascript
+//html 调用---------------------------------------
+//实例化对象
+let p = new Promise((resolve, reject) => {
+    setTimeout(() => {reject('OK'); }, 1000);
+});
+//值传递
+let res=p.then()
+    .then(value => {console.log(222);})
+    .then(value => {console.log(333);})
+    .catch(reason => {console.warn(reason);});
+console.log(res);
+
+// promise.js 修改-------------------------------------------
+Promise.prototype.then = function (onResolved, onRejected) {
+    if (typeof onResolved !== 'function') {
+        // 这里的 value 实际上只是一个形参，真正的值是在状态改变时，调用该回调函数传入的 data
+        onResolved = value => value
+    }
+    if (typeof onRejected !== 'function') {
+        onRejected = reason => {
+            throw reason
+        }
+    }
+    // ...
+}
+Promise.prototype.catch = function (onRejected) {
+    return this.then(undefined, onRejected)
+}
+```

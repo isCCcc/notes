@@ -19,8 +19,8 @@ function Promise(executor) {
         self.PromiseResult = data
         //调用成功的回调函数  加判断的原因是防止无回调报错
         //状态发生改变，触发异步then调用
-        self.callBack.forEach(fn => {
-            fn.onResolved(data)
+        self.callBack.forEach(item => {
+            item.onResolved(data)
         })
     }
 
@@ -31,8 +31,8 @@ function Promise(executor) {
         }
         self.PromiseState = 'rejected'
         self.PromiseResult = data
-        self.callBack.forEach(fn => {
-            fn.onRejected(data)
+        self.callBack.forEach(item => {
+            item.onRejected(data)
         })
     }
 
@@ -46,6 +46,16 @@ function Promise(executor) {
 
 // 添加 .then 方法
 Promise.prototype.then = function (onResolved, onRejected) {
+    if (typeof onResolved !== 'function') {
+        // 这里的 value 实际上只是一个形参，真正的值是在状态改变时，调用该回调函数传入的 data
+        onResolved = value => value
+    }
+    if (typeof onRejected !== 'function') {
+        onRejected = reason => {
+            throw reason
+        }
+    }
+
     const self = this
     // 返回一个全新的 Promise 对象
     // 该 Promise 的状态由回调函数的返回值状态决定
@@ -72,13 +82,17 @@ Promise.prototype.then = function (onResolved, onRejected) {
             callBack(onRejected)
         } else if (this.PromiseState === 'pending') {  // 拦截异步情况
             this.callBack.push({
-                onResolved:function (){
+                onResolved: function () {
                     callBack(onResolved)
                 },
-                onRejected:function (){
+                onRejected: function () {
                     callBack(onRejected)
                 }
             })
         }
     })
+}
+// catch 方法
+Promise.prototype.catch = function (onRejected) {
+    return this.then(undefined, onRejected)
 }

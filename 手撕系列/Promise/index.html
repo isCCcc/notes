@@ -2,27 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>手撕Promise - 9.异步任务 then 返回结果</title>
+    <title>手撕Promise - 10.catch 方法与异常穿透与值传递</title>
         <script src="./promise.js"></script>
 </head>
 <body>
 <script>
+    //实例化对象
     let p = new Promise((resolve, reject) => {
-        setTimeout(()=>{
-            resolve('OK')
-            // reject('error')
-        })
-    })
-    console.log(p);
-    let res = p.then(value => {
-        return 123
-        // return new Promise((resolve, reject) => {
-        //     reject('OK')
-        // })
-        // throw '123'
-    }, reason => {
-        console.warn(reason)
-    })
+        setTimeout(() => {reject('OK'); }, 1000);
+    });
+    //值传递
+    let res=p.then()
+        .then(value => {console.log(222);})
+        .then(value => {console.log(333);})
+        .catch(reason => {console.warn(reason);});
     console.log(res);
 </script>
 </body>

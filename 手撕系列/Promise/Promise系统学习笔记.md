@@ -238,3 +238,81 @@ function Promise(executor) {
 
 }
 ```
+
+### 7 - 指定多个回调
+
+> 1. 基于6代码进行修改 只展示修改部分代码
+>
+>2. `6`中保存回调函数的方式有BUG,如果我有多个`.then()`,后面加载的回调函数会覆盖之前的回调函数,导致最后回调函数`有且只有`最后一个
+    >
+    >   解:使用`数组`的方式进行存储回调函数,调用时也是用数组循环取出
+>
+>3. 此处的then`仍有瑕疵`,需要继续完善
+
+```javascript
+// html调用-----------------------------------------------------------------------
+p.then(value => {
+    console.log(value)
+}, reason => {
+    console.warn(reason)
+})
+p.then(value => {
+    alert(value);
+}, reason => {
+    alert(reason);
+});
+
+// promise.js 修改-----------------------------------------------------------------
+function Promise(executor) {
+    //存储then的回调方法
+    this.callBack = []  // 修改一 -------------
+    //添加属性
+    this.PromiseState = 'pending'
+    this.PromiseResult = null
+    //保存实例对象的 this 指向
+    const self = this
+
+    // resolve
+    function resolve(data) {
+        // 判断状态
+        if (self.PromiseState !== 'pending') {
+            return;
+        }
+        // 1、修改对象的状态
+        self.PromiseState = 'fulfilled'
+        // 2、设置对象的结果值
+        self.PromiseResult = data
+        //调用成功的回调函数  加判断的原因是防止无回调报错
+        //状态发生改变，触发异步then调用
+        self.callBack.forEach(fn => {   // 修改二 -------------
+            fn.onResolved(data)
+        })
+    }
+
+    // reject
+    function reject(data) {
+        if (self.PromiseState !== 'pending') {
+            return;
+        }
+        self.PromiseState = 'rejected'
+        self.PromiseResult = data
+        self.callBack.forEach(fn => {
+            fn.onRejected(data)
+        })
+    }
+
+    //......
+}
+
+Promise.prototype.then = function (onResolved, onRejected) {
+    // 调用回调函数
+    // 此时的 this 为实例对象 p
+    if (this.PromiseState === 'fulfilled') {
+        onResolved(this.PromiseResult)
+    } else if (this.PromiseState === 'rejected') {
+        onRejected(this.PromiseResult)
+    } else if (this.PromiseState === 'pending') {  // 拦截异步情况
+        this.callBack.push({onResolved, onRejected})  // 修改三 ------------
+    }
+}
+```

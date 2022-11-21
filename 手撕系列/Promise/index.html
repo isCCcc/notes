@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>手撕Promise - 6.异步任务 then 方法实现</title>
-    <script src="./promise.js"></script>
+    <title>手撕Promise - 7.指定多个回调</title>
+<!--    <script src="./promise.js"></script>-->
 </head>
 <body>
 <script>
@@ -11,9 +11,9 @@
         // resolve('OK')
         // reject('error')
         // throw 'err'
-        setTimeout(()=>{
-            // resolve('ok')
-            reject('error')
+        setTimeout(() => {
+            resolve('ok')
+            // reject('error')
         })
     })
     p.then(value => {
@@ -21,6 +21,12 @@
     }, reason => {
         console.warn(reason)
     })
+    p.then(value => {
+        alert(value);
+    }, reason => {
+        alert(reason);
+    });
+    console.log(p);
 </script>
 </body>
 </html>

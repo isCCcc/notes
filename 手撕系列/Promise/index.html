@@ -2,15 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>手撕Promise - 5.then 方法执行回调</title>
+    <title>手撕Promise - 6.异步任务 then 方法实现</title>
     <script src="./promise.js"></script>
 </head>
 <body>
 <script>
     let p = new Promise((resolve, reject) => {
         // resolve('OK')
-        reject('error')
-        throw 'err'
+        // reject('error')
+        // throw 'err'
+        setTimeout(()=>{
+            // resolve('ok')
+            reject('error')
+        })
     })
     p.then(value => {
         console.log(value)

@@ -169,3 +169,72 @@ Promise.prototype.then = function (onResolved, onRejected) {
     }
 }
 ```
+
+### 6 - 异步任务 then 方法实现
+
+> then 方法的执行始终要在执行器函数调用之后：
+>
+>     执行器函数内为同步代码：在then里面调用指定回调
+>
+>     执行器函数内为异步代码，指定回调的调用时机为状态发生改变之时
+
+> 当前 Promise 中执行异步任务时，控制台中将没有任何输出
+>
+> 原因：
+> Promise 中的异步任务会被放入队列中，接着执行 p.then 方法，此时PromiseState='pending',故不会执行传入 then 中的回调函数
+>
+> 解决办法：
+> 为 Promise.prototype.then 判断当前 Promise 状态是否为 pending，若判断条件成立，则将回调函数保存在 callBack 对象里面。
+>
+> 当状态发生改变时，执行 callBack 中响应的回调函数
+
+```javascript
+// Promise.prototype.then 中判断当前 Promise 状态是否为 pending-----------------------------------
+Promise.prototype.then = function (onResolved, onRejected) {
+
+    //......
+    //存储then的回调方法
+    this.callBack = {}
+    // 调用回调函数
+    // 此时的 this 为实例对象 p
+    // ......
+    if (this.PromiseState === 'pending') {  // 拦截异步情况
+        this.callBack = {onResolved, onRejected}
+    }
+}
+
+//Promise 中监视当前状态是否改变，若改变，则调用 callBack 中相应的回调函数
+function Promise(executor) {
+    // resolve
+    function resolve(data) {
+        // 判断状态
+        if (self.PromiseState !== 'pending') {
+            return;
+        }
+        // 1、修改对象的状态
+        self.PromiseState = 'fulfilled'
+        // 2、设置对象的结果值
+        self.PromiseResult = data
+        //调用成功的回调函数  加判断的原因是防止无回调报错
+        //状态发生改变，触发异步then调用
+        if (self.callBack.onResolved) {
+            self.callBack.onResolved(data)
+        }
+    }
+
+    // reject
+    function reject(data) {
+        if (self.PromiseState !== 'pending') {
+            return;
+        }
+        self.PromiseState = 'rejected'
+        self.PromiseResult = data
+        if (self.callBack.onRejected) {
+            self.callBack.onRejected(data)
+        }
+    }
+
+    //......
+
+}
+```

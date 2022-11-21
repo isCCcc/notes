@@ -1,6 +1,8 @@
 // 声明 Promise 构造函数
 //  注：executor 执行器行数是同步调用的
 function Promise(executor) {
+    //存储then的回调方法
+    this.callBack = {}
     //添加属性
     this.PromiseState = 'pending'
     this.PromiseResult = null
@@ -17,16 +19,23 @@ function Promise(executor) {
         self.PromiseState = 'fulfilled'
         // 2、设置对象的结果值
         self.PromiseResult = data
+        //调用成功的回调函数  加判断的原因是防止无回调报错
+        //状态发生改变，触发异步then调用
+        if (self.callBack.onResolved) {
+            self.callBack.onResolved(data)
+        }
     }
 
     // reject
     function reject(data) {
-        // 判断状态
         if (self.PromiseState !== 'pending') {
             return;
         }
         self.PromiseState = 'rejected'
         self.PromiseResult = data
+        if (self.callBack.onRejected) {
+            self.callBack.onRejected(data)
+        }
     }
 
     //throw抛出异常处理
@@ -45,5 +54,7 @@ Promise.prototype.then = function (onResolved, onRejected) {
         onResolved(this.PromiseResult)
     } else if (this.PromiseState === 'rejected') {
         onRejected(this.PromiseResult)
+    } else if (this.PromiseState === 'pending') {  // 拦截异步情况
+        this.callBack = {onResolved, onRejected}
     }
 }

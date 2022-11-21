@@ -1,5 +1,3 @@
-// 声明 Promise 构造函数
-//  注：executor 执行器行数是同步调用的
 function Promise(executor) {
     //存储then的回调方法
     this.callBack = []

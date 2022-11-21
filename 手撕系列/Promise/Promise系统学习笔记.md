@@ -38,6 +38,7 @@ function Promise(executor) {
 // 添加.then方法
 Promise.prototype.then = function (onResolved, onRejected) {
 }
+<<<<<<< HEAD
 ```
 
 ### 2 - resolve 与 reject 构建与基础实现

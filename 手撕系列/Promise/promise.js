@@ -9,6 +9,8 @@ function Promise(executor) {
 
     // resolve
     function resolve(data) {
+        // 判断状态
+        if(self.PromiseState!=='pending'){return;}
         // 1、修改对象的状态
         self.PromiseState = 'fulfilled'
         // 2、设置对象的结果值
@@ -17,6 +19,8 @@ function Promise(executor) {
 
     // reject
     function reject(data) {
+        // 判断状态
+        if(self.PromiseState!=='pending'){return;}
         self.PromiseState = 'rejected'
         self.PromiseResult = data
     }

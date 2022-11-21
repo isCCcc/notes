@@ -2,14 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>手撕Promise - 初始化搭建</title>
+    <title>手撕Promise - throw抛出异常，改变状态</title>
     <script src="./promise.js"></script>
 </head>
 <body>
 <script>
     let p = new Promise((resolve, reject) => {
         // resolve('OK')
-        reject('error')
+        // reject('error')
+        throw 'err'
     })
     console.log(p);
     p.then(value => {

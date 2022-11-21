@@ -21,7 +21,12 @@ function Promise(executor) {
         self.PromiseResult = data
     }
 
-    executor(resolve, reject)
+    //throw抛出异常处理
+    try {
+        executor(resolve, reject)
+    } catch (e) {
+        reject(e)
+    }
 }
 
 // 添加 .then 方法

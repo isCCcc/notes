@@ -79,3 +79,18 @@ function Promise(executor) {
     executor(resolve, reject)
 }
 ```
+
+### 3 - throw抛出异常 改变状态
+
+>1. 在2的基础上进行修改:将执行器放入`try-catch()`中
+>2. 在catch中使用`reject()`修改 promise 对象状态为『`失败`』
+
+```javascript
+ try {
+    //同步调用『执行器函数』
+    executor(resolve, reject);
+  } catch (e) {
+    //修改 promise 对象状态为『失败』
+    reject(e);
+  }
+```

@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>手撕Promise - 11.Promise.resolve 封装</title>
-        <script src="./promise.js"></script>
+    <title>手撕Promise - 12.Promise.reject 封装</title>
+<!--            <script src="./promise.js"></script>-->
 </head>
 <body>
 <script>
     //实例化对象
-    let p = Promise.resolve(123)
+    let p = Promise.reject(123)
     console.log(p);
 
-    let p2 = Promise.resolve(new Promise((res,rej)=>{
+    let p2 = Promise.reject(new Promise((res, rej) => {
         res('OK')
     }))
     console.log(p2);

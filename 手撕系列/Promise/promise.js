@@ -92,10 +92,12 @@ Promise.prototype.then = function (onResolved, onRejected) {
         }
     })
 }
+
 // catch 方法
 Promise.prototype.catch = function (onRejected) {
     return this.then(undefined, onRejected)
 }
+
 //resolve
 Promise.resolve = function (value) {
     return new Promise((resolve, reject) => {
@@ -108,6 +110,13 @@ Promise.resolve = function (value) {
         } else {
             resolve(value)
         }
+    })
+}
+
+//reject
+Promise.reject=function (reason){
+    return new Promise((resolve,reject)=>{
+        reject(reason)
     })
 }
 

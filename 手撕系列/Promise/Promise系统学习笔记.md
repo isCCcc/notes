@@ -608,7 +608,7 @@ Promise.race = function (promises) {
 
 ### 5 - Promise.then 方法回调的异步执行
 
->1. 如果我们运行下面代码,正确顺序是: 111 --> 333 -->444
+> 1. 如果我们运行下面代码,正确顺序是: 111 --> 333 -->444
 >
 >```js
 >  let p1 = new Promise((resolve, reject) => {
@@ -658,6 +658,58 @@ Promise.race = function (promises) {
 >
 >4. `相关原理参照js事件循环机制、宏任务与微任务`
 
-
 ### 6 - Class 版本的实现
+
+> 1. 将原先在构造函数中封装的所有变量和方法放进类的构造函数中
+>2. 将实例上的方法直接放进类里
+>3. 将类身上的属性放进类里，并使用关键字 static 修饰，表明这是一个静态方法，属于类本身，而不属于实例对象
+
+> Class 版本完整代码：
+
+```javascript
+class Promise {
+    //构造器函数
+    constructor(executor) {
+        //存储then的回调方法
+        this.callBack = []
+        //添加属性
+        this.PromiseState = 'pending'
+        this.PromiseResult = null
+        //保存实例对象的 this 指向
+        const self = this
+
+        // resolve
+        function resolve(data) { /*  完整代码可查看 手撕系列/Promise/class版本/promise.js  */}
+
+        // reject
+        function reject(data) { /*  完整代码可查看 手撕系列/Promise/class版本/promise.js  */}
+            
+        //throw抛出异常处理
+        try {
+            executor(resolve, reject)
+        } catch (e) {
+            reject(e)
+        }
+    }
+
+    // 添加 .then 方法
+    then(onResolved, onRejected) { /*  完整代码可查看 手撕系列/Promise/class版本/promise.js  */}
+
+    // 添加 catch 方法
+    catch(onRejected) { /*  完整代码可查看 手撕系列/Promise/class版本/promise.js  */}
+
+    //resolve
+    static resolve(value) { /*  完整代码可查看 手撕系列/Promise/class版本/promise.js  */}
+
+    //reject
+    static reject(reason) { /*  完整代码可查看 手撕系列/Promise/class版本/promise.js  */}
+
+    //all
+    static all(promises) { /*  完整代码可查看 手撕系列/Promise/class版本/promise.js  */}
+
+    //race
+    static race(promises) { /*  完整代码可查看 手撕系列/Promise/class版本/promise.js  */}
+        
+    }
+```
 

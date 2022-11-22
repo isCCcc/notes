@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOM</title>
+</head>
+<style>
+    .old-class {
+        border: 2px solid pink
+    }
+
+    .test {
+        color: blueviolet;
+    }
+</style>
+
+<body>
+    示例
+    <div id="nodeparent">
+        <div id="node">node</div>
+    </div>
+
+    <div id="nodeempty">
+        <div id="e1"></div>
+        <div id="e2"></div>
+        <div id="e3"></div>
+    </div>
+
+    <div id="nodetitle"></div>
+
+    <div id="readme">readme</div>
+
+    <div id="readhtml">readHtml</div>
+
+    <div id="teststyle">test style</div>
+
+    <div id="testclass" class="old-class">test of class</div>
+
+    <div id="testListener">test of Listener</div>
+
+    <div id="testFind">
+        <span id="findSpan">find in testFind</span>
+    </div>
+
+    <div id="testRelation">
+        <span id="parent">parent</span>
+        <span id="itselft">itselft</span>
+        <span id="children">children</span>
+    </div>
+    <script src="dom.js"></script>
+    <script src="main.js"></script>
+</body>
+
+</html>

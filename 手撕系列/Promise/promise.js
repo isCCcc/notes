@@ -61,7 +61,7 @@ Promise.prototype.then = function (onResolved, onRejected) {
     // 该 Promise 的状态由回调函数的返回值状态决定
     return new Promise((resolve, reject) => {
         //封装callBack函数，用于处理返回值的状态和返回值
-        function callBack(type) {
+        function callBack(type) {  //作用是返回一个Promis对象
             try {
                 let result = type(self.PromiseResult)
                 if (result instanceof Promise) {  // 如果返回值是一个 Promise，则一定可以调用then方法
@@ -96,3 +96,29 @@ Promise.prototype.then = function (onResolved, onRejected) {
 Promise.prototype.catch = function (onRejected) {
     return this.then(undefined, onRejected)
 }
+//resolve
+Promise.resolve = function (value) {
+    return new Promise((resolve, reject) => {
+        if (value instanceof Promise) {
+            value.then(v => {
+                resolve(v)
+            }, r => {
+                reject(r)
+            })
+        } else {
+            resolve(value)
+        }
+    })
+}
+
+
+
+
+
+
+
+
+
+
+
+

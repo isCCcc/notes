@@ -2,21 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>手撕Promise - 10.catch 方法与异常穿透与值传递</title>
+    <title>手撕Promise - 11.Promise.resolve 封装</title>
         <script src="./promise.js"></script>
 </head>
 <body>
 <script>
     //实例化对象
-    let p = new Promise((resolve, reject) => {
-        setTimeout(() => {reject('OK'); }, 1000);
-    });
-    //值传递
-    let res=p.then()
-        .then(value => {console.log(222);})
-        .then(value => {console.log(333);})
-        .catch(reason => {console.warn(reason);});
-    console.log(res);
+    let p = Promise.resolve(123)
+    console.log(p);
+
+    let p2 = Promise.resolve(new Promise((res,rej)=>{
+        res('OK')
+    }))
+    console.log(p2);
 </script>
 </body>
 </html>

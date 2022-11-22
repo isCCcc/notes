@@ -386,7 +386,7 @@ Promise.prototype.then = function (onResolved, onRejected) {
     // 该 Promise 的状态由回调函数的返回值状态决定
     return new Promise((resolve, reject) => {
         //封装callBack函数，用于处理返回值的状态和返回值
-        function callBack(type) {
+        function callBack(type) {  //作用是返回一个Promis对象
             try {
                 let result = type(self.PromiseResult)
                 if (result instanceof Promise) {  // 如果返回值是一个 Promise，则一定可以调用then方法
@@ -424,7 +424,6 @@ Promise.prototype.then = function (onResolved, onRejected) {
 >
 > 解:进行回调函数判断,当其为空时,基于默认回调函数内容:`直接往外抛出`这样下方的`then() or catch()`就可以承接到异常或者值
 
-
 ```javascript
 //html 调用---------------------------------------
 //实例化对象
@@ -453,5 +452,45 @@ Promise.prototype.then = function (onResolved, onRejected) {
 }
 Promise.prototype.catch = function (onRejected) {
     return this.then(undefined, onRejected)
+}
+```
+
+## Ⅱ-Promise的静态方法实现
+
+### 1 - Promise.resolve 封装
+
+> 1. 判断传入的参数是否为`promise对象`:
+>
+> Ⅰ-如果为`promise`:将其状态与结果赋值给外层promise对象
+>
+> Ⅱ-如果为`非promise`:状态设置为成功
+
+```javascript
+//html调用----------------------------------------------
+<script>
+    //实例化对象
+    let p = Promise.resolve(123)
+    console.log(p);
+
+    let p2 = Promise.resolve(new Promise((res,rej)=>{
+    res('OK')
+}))
+    console.log(p2);
+</script>
+
+// Promise.resolve() 的封装代码--------------------------------------------
+//resolve
+Promise.resolve = function (value) {
+    return new Promise((resolve, reject) => {
+        if (value instanceof Promise) {
+            value.then(v => {
+                resolve(v)
+            }, r => {
+                reject(r)
+            })
+        } else {
+            resolve(value)
+        }
+    })
 }
 ```

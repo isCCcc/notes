@@ -577,6 +577,35 @@ Promise.all = function (promises) {
 
 ### 4 - Promise.race 封装
 
+> 谁先执行，谁的返回结果就影响当前 Promise 的返回结果
+
+```javascript
+// html调用------------------------------------------------------------  
+//实例化对象
+let p2 = Promise.resolve(new Promise((res, rej) => {
+    setTimeout(() => {
+        res('OK')
+    })
+}))
+let p3 = Promise.resolve('nonono')
+let res = Promise.all([p2, p3])
+console.log(res);
+
+// promise.js修改与实现-----------------------------------------------------
+//race
+Promise.race = function (promises) {
+    return new Promise((res, rej) => {
+        for (let i in promises) {
+            promises[i].then(v => {
+                res(v)
+            }, r => {
+                rej(r)
+            })
+        }
+    })
+}
+```
+
 ### 5 - Promise.then 方法回调的异步执行
 
 ### 6 - Class 版本的实现

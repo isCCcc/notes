@@ -142,6 +142,19 @@ Promise.all = function (promises) {
     })
 }
 
+//race
+Promise.race = function (promises) {
+    return new Promise((res, rej) => {
+        for (let i in promises) {
+            promises[i].then(v => {
+                res(v)
+            }, r => {
+                rej(r)
+            })
+        }
+    })
+}
+
 
 
 

@@ -2,20 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>手撕Promise - 13.Promise.all 封装</title>
+    <title>手撕Promise - 14.Promise.race 封装</title>
     <script src="./promise.js"></script>
 </head>
 <body>
 <script>
     //实例化对象
-    let p = Promise.resolve(123)
     let p2 = Promise.resolve(new Promise((res, rej) => {
         setTimeout(() => {
             res('OK')
         })
     }))
     let p3 = Promise.resolve('nonono')
-    let res = Promise.all([p, p2, p3])
+
+    let res = Promise.race([p2, p3])
     console.log(res);
 </script>
 </body>

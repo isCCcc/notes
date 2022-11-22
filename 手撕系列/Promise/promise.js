@@ -19,8 +19,10 @@ function Promise(executor) {
         self.PromiseResult = data
         //调用成功的回调函数  加判断的原因是防止无回调报错
         //状态发生改变，触发异步then调用
-        self.callBack.forEach(item => {
-            item.onResolved(data)
+        setTimeout(() => {
+            self.callBack.forEach(item => {
+                item.onResolved(data)
+            })
         })
     }
 
@@ -31,8 +33,10 @@ function Promise(executor) {
         }
         self.PromiseState = 'rejected'
         self.PromiseResult = data
-        self.callBack.forEach(item => {
-            item.onRejected(data)
+        setTimeout(() => {
+            self.callBack.forEach(item => {
+                item.onRejected(data)
+            })
         })
     }
 
@@ -77,9 +81,13 @@ Promise.prototype.then = function (onResolved, onRejected) {
         // 调用回调函数
         // 此时的 this 为实例对象 p
         if (this.PromiseState === 'fulfilled') {
-            callBack(onResolved)
+            setTimeout(() => {
+                callBack(onResolved)
+            })
         } else if (this.PromiseState === 'rejected') {
-            callBack(onRejected)
+            setTimeout(() => {
+                callBack(onRejected)
+            })
         } else if (this.PromiseState === 'pending') {  // 拦截异步情况
             this.callBack.push({
                 onResolved: function () {

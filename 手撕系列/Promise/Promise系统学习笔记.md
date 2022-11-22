@@ -608,5 +608,56 @@ Promise.race = function (promises) {
 
 ### 5 - Promise.then 方法回调的异步执行
 
+>1. 如果我们运行下面代码,正确顺序是: 111 --> 333 -->444
+>
+>```js
+>  let p1 = new Promise((resolve, reject) => {
+>      reject('OK');
+>      console.log(111);
+>    });
+>
+>    p1.then(value => {
+>      console.log(222);
+>    }, reason => {
+>      console.log(444);
+>    });
+>
+>    console.log(333);
+>```
+>
+>2. 但当我们运行之前封装的 **Promise** 代码时,结果却是:111 --> 444 --> 333
+    >
+    >   我们需要将我们的then方法变成`异步方法`
+>
+>3. 我们只要在以下四处地方的`回调函数调用`外层包裹一层定时器(不一定是定时器,开启异步即可),即可做到异步操作
+>
+>```js
+>
+> function resolve(data){
+>        setTimeout(() => { self.callbacks.forEach(item => { item.onResolved(data); }); });--修改1
+>    }
+>   //reject 函数
+>    function reject(data){
+>        setTimeout(() => { self.callbacks.forEach(item => { item.onRejected(data); }); });---修改2
+>    }
+>
+>//添加 then 方法
+>Promise.prototype.then = function(onResolved, onRejected){
+>    return new Promise((resolve, reject) => {
+>        //调用回调函数  PromiseState
+>       /*  修改前代码
+>       if (this.PromiseState === 'fulfilled') { callback(onResolved); }
+>   		if (this.PromiseState === 'rejected') { callback(onRejected);
+>   		 */
+>        if(this.PromiseState === 'fulfilled'){setTimeout(() => { callback(onResolved);});}  -----修改3
+>        if(this.PromiseState === 'rejected'){ setTimeout(() => { callback(onRejected);});   ---修改4
+>        }
+>    }
+>
+>```
+>
+>4. `相关原理参照js事件循环机制、宏任务与微任务`
+
+
 ### 6 - Class 版本的实现
 

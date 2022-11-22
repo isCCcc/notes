@@ -114,9 +114,31 @@ Promise.resolve = function (value) {
 }
 
 //reject
-Promise.reject=function (reason){
-    return new Promise((resolve,reject)=>{
+Promise.reject = function (reason) {
+    return new Promise((resolve, reject) => {
         reject(reason)
+    })
+}
+
+//all
+Promise.all = function (promises) {
+    return new Promise((resolve, reject) => {
+        let count = 0
+        let result = []
+        for (let i in promises) {
+            promises[i].then(v => {
+                count++
+                result[i] = v
+                if (count === promises.length) {
+                    resolve(result)
+                }
+            }, r => {
+                // 如果 promise 中有一个失败状态，直接设置Promise的状态为失败
+                // 后续的promies 实际上是会再次调用的，但不会再修改 Promise 的状态
+                //      （在 res / rej 中有检测当前状态是否为 pending）
+                reject(r)
+            })
+        }
     })
 }
 

@@ -535,6 +535,46 @@ Promise.reject = function (reason) {
 
 ### 3 - Promise.all 封装
 
+> 1. 遍历传入的promise数组,每当遍历结果是成功,则用计数器记录,当计数器等同于数组长度,则全部成功,这时候可以返回`成功`状态
+> 2. 如果当数组中任意一个promise的执行结果是`reject`,直接中断,返回状态为`失败`
+
+```javascript
+// html调用------------------------------------------------------------  
+//实例化对象
+let p = Promise.resolve(123)
+let p2 = Promise.resolve(new Promise((res, rej) => {
+    setTimeout(() => {
+        res('OK')
+    })
+}))
+let p3 = Promise.resolve('nonono')
+let res = Promise.all([p, p2, p3])
+console.log(res);
+
+// promise.js修改与实现-----------------------------------------------------
+//all
+Promise.all = function (promises) {
+    return new Promise((resolve, reject) => {
+        let count = 0
+        let result = []
+        for (let i in promises) {
+            promises[i].then(v => {
+                count++
+                result[i] = v
+                if (count === promises.length) {
+                    resolve(result)
+                }
+            }, r => {
+                // 如果 promise 中有一个失败状态，直接设置Promise的状态为失败
+                // 后续的promies 实际上是会再次调用的，但不会再修改 Promise 的状态
+                //      （在 res / rej 中有检测当前状态是否为 pending）
+                reject(r)
+            })
+        }
+    })
+}
+```
+
 ### 4 - Promise.race 封装
 
 ### 5 - Promise.then 方法回调的异步执行

@@ -9,27 +9,29 @@
 >
 > 接着我们接可以自定义一个模板解析器，解析html，替换 data 数据了
 
-```javascript
+```html
 // html 调用 -------------------------------
 <body>
-    <div id="app">
-        <h1> {{str}} </h1>
-        {{str}}
-        <p>{{data}}</p>
-    </div>
+<div id="app">
+    <h1> {{str}} </h1>
+    {{str}}
+    <p>{{data}}</p>
+</div>
 
-    <script type="text/javascript" src="Vue.js"></script>
-    <script type="text/javascript">
-        new Vue({
+<script type="text/javascript" src="Vue.js"></script>
+<script type="text/javascript">
+    new Vue({
         el: '#app',
         data: {
-        str: '这是 str 的内容',
-        data: '这是 data 的内容'
-    }
+            str: '这是 str 的内容',
+            data: '这是 data 的内容'
+        }
     })
-    </script>
+</script>
 </body>
+```
 
+```javascript
 // Vue.js 代码实现
 class Vue {
     constructor(options) {
@@ -80,7 +82,7 @@ class Vue {
 > 那么。我们只需要在自定义的Vue文件中，安装特定的顺序，执行生命周期函数即可。
 >
 >   - 注意：在执行生命周期函数时，需要使用 bind 函数，指定 this；
->   - 因为我们希望在生命周期函数中使用 this 时，指向的是当前的 Vue 实例,而不是 options 对象
+>   - 因为我们希望在生命周期函数中使用 this 时，指向的是当前的 Vue 实例,而不是 options 对象。
 
 ```javascript
 // html 调用--------------------------------------------
@@ -126,5 +128,59 @@ class Vue {
     }
 
 //    .....
+}
+```
+
+## 4 - 添加事件
+
+> 当我们在模板解析器中，解析到当前元素结点绑定了点击事件，那么就去执行 options 中的 methods 对应的函数即可。
+>
+>   - 注意：
+>   - 在执行生命周期函数时，需要使用 bind 函数，指定 this；理由同[3]
+>   - 在这里只实现了点击事件的编码，其他自定义事件实际上可以照葫芦画瓢，为元素结点添加对应的监听事件即可。
+
+```html
+// html 调用 -------------------------------------------------
+<div id="app">
+    <button @click=" btn">按钮</button>
+</div>
+<script type="text/javascript" src="Vue.js"></script>
+<script type="text/javascript">
+    new Vue({
+        el: '#app',
+        method: {
+            btn() {
+                console.log(this);
+            }
+        }
+    })
+</script>
+```
+
+```javascript
+// 添加事件编码----------------------------------------------------
+class Vue {
+    // .......其他编码........
+    // 模板解析器：解析根结点，将模板语法替换为 $data 中的具体数据
+    complie(node) {
+        node.childNodes.forEach((item, index) => {
+            if (item.nodeType === 3) {        // 文本节点：替换数据
+                // .......其他编码........
+            } else if (item.nodeType === 1) {  // node节点：递归解析
+
+                if (item.hasAttribute('@click')) {   // 若该元素节点上绑定了 click 事件
+                    const vkey = item.getAttribute('@click').trim()  // 获取绑定的事件名
+                    item.addEventListener('click', (event) => {
+                        const eventFn = this.$options.methods[vkey].bind(this)  // 改变this指向，并执行 methods中对应的函数
+                        eventFn(event)
+                    })
+                }
+
+                if (item.childNodes.length > 0) {
+                    this.complie(item)
+                }
+            }
+        })
+    }
 }
 ```

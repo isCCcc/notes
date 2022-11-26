@@ -5,28 +5,22 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>自定义 Vue 编码 - 3.生命周期</title>
+    <title>自定义 Vue 编码 - 4.添加事件</title>
 </head>
 <body>
 <div id="app">
-    <h1> {{ str }} </h1>
-    {{ str }}
-    <p>{{ data }}</p>
+    <button @click="     btn">按钮</button>
 </div>
 
 <script type="text/javascript" src="Vue.js"></script>
 <script type="text/javascript">
     new Vue({
         el: '#app',
-        data: {
-            str: '这是 str 的内容',
-            data: '这是 data 的内容',
-        },
-
-        beforeCreate(){console.log('beforeCreate' , this.$data,this.$el);},
-        created(){console.log('created', this.$data,this.$el);},
-        beforeMount(){console.log('beforeMount', this.$data,this.$el);},
-        mounted(){console.log('mounted', this.$data,this.$el);},
+        methods:{
+            btn(){
+                console.log(this);
+            }
+        }
     })
 </script>
 </body>

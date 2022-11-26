@@ -1,18 +1,19 @@
 class Vue {
     constructor(options) {
-        if(typeof options.beforeCreate=='function'){
+        this.$options=options
+        if (typeof options.beforeCreate == 'function') {
             options.beforeCreate.bind(this)()
         }
         this.$data = options.data
-        if(typeof options.created=='function'){
+        if (typeof options.created == 'function') {
             options.created.bind(this)()
         }
-        if(typeof options.beforeMount=='function'){
+        if (typeof options.beforeMount == 'function') {
             options.beforeMount.bind(this)()
         }
         this.$el = document.querySelector(options.el)
         this.complie(this.$el)
-        if(typeof options.mounted=='function'){
+        if (typeof options.mounted == 'function') {
             options.mounted.bind(this)()
         }
 
@@ -28,7 +29,18 @@ class Vue {
                     return this.$data[vkey]
                 })
             } else if (item.nodeType === 1) {  // node节点：递归解析
-                this.complie(item)
+
+                if (item.hasAttribute('@click')) {   // 若该元素节点上绑定了 click 事件
+                    const vkey = item.getAttribute('@click').trim()  // 获取绑定的事件名
+                    item.addEventListener('click',(event)=>{
+                        const eventFn=this.$options.methods[vkey].bind(this)  // 改变this指向，并执行 methods中对应的函数
+                        eventFn(event)
+                    })
+                }
+
+                if (item.childNodes.length > 0) {
+                    this.complie(item)
+                }
             }
         })
     }

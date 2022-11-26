@@ -189,11 +189,14 @@ class Vue {
 
 > 当前代码 bug：
 >   
->   无法在 options 配置对象中直接获取 this.data
+>   - 无法在 options 配置对象中直接获取 this.data
 > 
 > 解：
 > 
->   使用 Object.defineProperty 对 data 进行数据劫持，将数据挂载到 this 身上
+>   - 使用 Object.defineProperty 对 data 进行数据劫持，将数据挂载到 this 身上
+> 
+> 注：
+>   - 自此完成 data 和 UI 界面的绑定
 
 ```javascript
 // Vue.js 编码 -----------------------------------------------
@@ -241,4 +244,98 @@ new Vue({
         }
     }
 })
+```
+
+## 6 - 更新视图
+
+> 当前代码bug：
+> 
+>   - 在html页面中触发data中任意属性的set事件，数据发生变化，但页面无法更新
+> 
+> 分析：
+>   
+>   - 缺乏监听器，监听数据发生变化后，动态地更新页面
+> 
+> 实现思路：
+> 
+>1. 在解析模板时，我们动态的为每个data中的属性订阅数据，绑定监听函数;
+>
+>2. 创建一个 `Watch` 构造函数,用于更改视图;
+>
+>3. 创建 `observe` 函数，监听数据的变化，一旦数据发生改变，执行监听器中的 `update` 函数
+>
+> 注：
+>   - 自此完成了 UI 界面和 data 之间的绑定
+
+```javascript
+class Vue {
+    constructor(options) {
+        // ......其他代码编写.....
+        this.$watchEvent = {}
+        this.observe()
+        // ......其他代码编写.....
+    }
+    
+    // ......其他代码编写.....
+
+    // 触发data中地数据发生变化时，执行update更新视图 ---------------------------------- 要点三
+    observe() {
+        for (let key in this.$data) {
+            const that = this
+            let value = this.$data[key]
+            Object.defineProperty(this.$data, key, {
+                get() {
+                    return value
+                },
+                set(newValue) {  // 数据发生变化，触发set函数，执行监听器里地update函数，更新视图
+                    value = newValue
+                    if (that.$watchEvent[key]) {
+                        that.$watchEvent[key].forEach(item => {
+                            item.update()
+                        })
+                    }
+                }
+            })
+        }
+    }
+
+    // 模板解析器：解析根结点，将模板语法替换为 $data 中的具体数据
+    complie(node) {
+        node.childNodes.forEach(item => {
+            if (item.nodeType === 3) {        // 文本节点：替换数据
+                const reg = /\{\{(.*?)\}\}/g
+                item.textContent = item.textContent.replace(reg, (match, vkey) => {
+                    vkey = vkey.trim()
+                    // 解析模板时，为每个变量订阅数据、绑定更新函数 ----------------------------- 要点一
+                    if (this.hasOwnProperty(vkey)) {
+                        const watcher = new Watch(this, vkey, item, 'textContent')
+                        if (!this.$watchEvent[vkey]) {
+                            this.$watchEvent[vkey] = []
+                        }
+                        this.$watchEvent[vkey].push(watcher)
+                    }
+                    
+                    return this.$data[vkey]
+                })
+            } else if (item.nodeType === 1) {  // node节点：递归解析
+                // ......其他代码编写.....
+            }
+        })
+    }
+}
+
+// 用于更改视图数据 ------------------------------------------------------ 要点二
+class Watch {
+    constructor(vm, key, node, attr) {
+        this.vm = vm
+        this.key = key
+        this.node = node
+        this.attr = attr
+    }
+
+    // 执行更新操作
+    update() {
+        this.node[this.attr] = this.vm[this.key]
+    }
+}
 ```

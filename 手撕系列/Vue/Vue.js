@@ -1,11 +1,13 @@
 class Vue {
     constructor(options) {
         this.$options = options
+        this.$watchEvent = {}
         if (typeof options.beforeCreate == 'function') {
             options.beforeCreate.bind(this)()
         }
         this.$data = options.data
         this.proxyData()
+        this.observe()
         if (typeof options.created == 'function') {
             options.created.bind(this)()
         }
@@ -23,13 +25,35 @@ class Vue {
     // 为data中的每个属性添加set方法，进行数据劫持
     proxyData() {
         for (let key in this.$data) {
-            console.log(key);
+            console.log(this);
             Object.defineProperty(this, key, {
                 get() {
                     return this.$data[key]
                 },
                 set(newVal) {
                     this.$data[key] = newVal
+                }
+            })
+        }
+    }
+
+    // 触发data中地数据发生变化时，执行update更新视图
+    observe() {
+        for (let key in this.$data) {
+            const that = this
+            let value = this.$data[key]
+            console.log('====');
+            Object.defineProperty(this.$data, key, {
+                get() {
+                    return value
+                },
+                set(newValue) {
+                    value = newValue
+                    if (that.$watchEvent[key]) {
+                        that.$watchEvent[key].forEach(item => {
+                            item.update()
+                        })
+                    }
                 }
             })
         }
@@ -42,6 +66,14 @@ class Vue {
                 const reg = /\{\{(.*?)\}\}/g
                 item.textContent = item.textContent.replace(reg, (match, vkey) => {
                     vkey = vkey.trim()
+                    // 解析模板时，为每个变量订阅数据、绑定更新函数
+                    if (this.hasOwnProperty(vkey)) {
+                        const watcher = new Watch(this, vkey, item, 'textContent')
+                        if (!this.$watchEvent[vkey]) {
+                            this.$watchEvent[vkey] = []
+                        }
+                        this.$watchEvent[vkey].push(watcher)
+                    }
                     return this.$data[vkey]
                 })
             } else if (item.nodeType === 1) {  // node节点：递归解析
@@ -59,5 +91,20 @@ class Vue {
                 }
             }
         })
+    }
+}
+
+// 用于更改视图数据
+class Watch {
+    constructor(vm, key, node, attr) {
+        this.vm = vm
+        this.key = key
+        this.node = node
+        this.attr = attr
+    }
+
+    // 执行更新操作
+    update() {
+        this.node[this.attr] = this.vm[this.key]
     }
 }

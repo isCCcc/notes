@@ -5,10 +5,11 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>自定义 Vue 编码 - 4.添加事件</title>
+    <title>自定义 Vue 编码 - 5.数据劫持</title>
 </head>
 <body>
 <div id="app">
+    {{str}}
     <button @click="     btn">按钮</button>
 </div>
 
@@ -16,9 +17,14 @@
 <script type="text/javascript">
     new Vue({
         el: '#app',
+        data:{
+            str:'data1'
+        },
         methods:{
             btn(){
-                console.log(this);
+                console.log(this.str);
+                this.str='data2'
+                console.log(this.str);
             }
         }
     })

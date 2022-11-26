@@ -1,10 +1,11 @@
 class Vue {
     constructor(options) {
-        this.$options=options
+        this.$options = options
         if (typeof options.beforeCreate == 'function') {
             options.beforeCreate.bind(this)()
         }
         this.$data = options.data
+        this.proxyData()
         if (typeof options.created == 'function') {
             options.created.bind(this)()
         }
@@ -19,9 +20,24 @@ class Vue {
 
     }
 
+    // 为data中的每个属性添加set方法，进行数据劫持
+    proxyData() {
+        for (let key in this.$data) {
+            console.log(key);
+            Object.defineProperty(this, key, {
+                get() {
+                    return this.$data[key]
+                },
+                set(newVal) {
+                    this.$data[key] = newVal
+                }
+            })
+        }
+    }
+
     // 模板解析器：解析根结点，将模板语法替换为 $data 中的具体数据
     complie(node) {
-        node.childNodes.forEach((item, index) => {
+        node.childNodes.forEach(item => {
             if (item.nodeType === 3) {        // 文本节点：替换数据
                 const reg = /\{\{(.*?)\}\}/g
                 item.textContent = item.textContent.replace(reg, (match, vkey) => {
@@ -32,8 +48,8 @@ class Vue {
 
                 if (item.hasAttribute('@click')) {   // 若该元素节点上绑定了 click 事件
                     const vkey = item.getAttribute('@click').trim()  // 获取绑定的事件名
-                    item.addEventListener('click',(event)=>{
-                        const eventFn=this.$options.methods[vkey].bind(this)  // 改变this指向，并执行 methods中对应的函数
+                    item.addEventListener('click', (event) => {
+                        const eventFn = this.$options.methods[vkey].bind(this)  // 改变this指向，并执行 methods中对应的函数
                         eventFn(event)
                     })
                 }

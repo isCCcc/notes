@@ -1,6 +1,6 @@
-# 自定义 Vue 编码
+# 自定义 Vue2 编码
 
-> 本文件将尝试自行封装完成 Vue 响应式代码
+> 本文件将尝试自行封装完成 Vue.js 中的`模板解析`、`生命周期`、`添加事件`、`数据劫持`、`更新视图`、`双向数据绑定`等代码编写。
 
 ## 1 - 初始结构搭建
 
@@ -183,4 +183,62 @@ class Vue {
         })
     }
 }
+```
+
+## 5 - 数据劫持
+
+> 当前代码 bug：
+>   
+>   无法在 options 配置对象中直接获取 this.data
+> 
+> 解：
+> 
+>   使用 Object.defineProperty 对 data 进行数据劫持，将数据挂载到 this 身上
+
+```javascript
+// Vue.js 编码 -----------------------------------------------
+class Vue {
+    constructor(options) {
+        // ......其他代码编写.....
+        
+        this.$data = options.data
+        this.proxyData()
+        
+        // ......其他代码编写.....
+    }
+
+    // 为data中的每个属性添加set方法，进行数据劫持
+    proxyData() {
+        for (let key in this.$data) {
+            console.log(key);
+            Object.defineProperty(this, key, {
+                get() {
+                    return this.$data[key]
+                },
+                set(newVal) {
+                    this.$data[key] = newVal
+                }
+            })
+        }
+    }
+
+    complie(node) {
+        // ......其他代码编写.....
+    }
+}
+
+//html 中调用 ---------------------
+new Vue({
+    el: '#app',
+    data:{
+        str:'data1'
+    },
+    methods:{
+        btn(){
+            console.log(this.str);   // 可以直接获取到str属性
+            this.str='data2'
+            console.log(this.str);   // str属性正确地发生修改
+        }
+    }
+})
 ```

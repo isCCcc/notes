@@ -1,4 +1,4 @@
-# 自定义 Vue 响应式编码
+# 自定义 Vue 编码
 
 > 本文件将尝试自行封装完成 Vue 响应式代码
 
@@ -21,12 +21,12 @@
     <script type="text/javascript" src="Vue.js"></script>
     <script type="text/javascript">
         new Vue({
-            el: '#app',
-            data: {
-                str: '这是 str 的内容',
-                data: '这是 data 的内容'
-            }
-        })
+        el: '#app',
+        data: {
+        str: '这是 str 的内容',
+        data: '这是 data 的内容'
+    }
+    })
     </script>
 </body>
 
@@ -68,5 +68,63 @@ class Vue {
             }
         })
     }
+}
+```
+
+## 3 - 生命周期
+
+> 我们知道，在Vue中，生命周期的执行顺序为：
+>
+> beforeCreate --> created(可以访问到data数据) --> beforeMount --> mounted(可以访问到data数据和el节点)
+>
+> 那么。我们只需要在自定义的Vue文件中，安装特定的顺序，执行生命周期函数即可。
+>
+>   - 注意：在执行生命周期函数时，需要使用 bind 函数，指定 this；
+>   - 因为我们希望在生命周期函数中使用 this 时，指向的是当前的 Vue 实例,而不是 options 对象
+
+```javascript
+// html 调用--------------------------------------------
+new Vue({
+    el: '#app',
+    data: {
+        str: '这是 str 的内容',
+        data: '这是 data 的内容',
+    },
+
+    beforeCreate() {
+        console.log('beforeCreate', this.$data, this.$el);
+    },
+    created() {
+        console.log('created', this.$data, this.$el);
+    },
+    beforeMount() {
+        console.log('beforeMount', this.$data, this.$el);
+    },
+    mounted() {
+        console.log('mounted', this.$data, this.$el);
+    },
+})
+
+// Vue.js 编码--------------------------------------------
+class Vue {
+    constructor(options) {
+        if (typeof options.beforeCreate == 'function') {
+            options.beforeCreate.bind(this)()
+        }
+        this.$data = options.data
+        if (typeof options.created == 'function') {
+            options.created.bind(this)()
+        }
+        if (typeof options.beforeMount == 'function') {
+            options.beforeMount.bind(this)()
+        }
+        this.$el = document.querySelector(options.el)
+        this.complie(this.$el)
+        if (typeof options.mounted == 'function') {
+            options.mounted.bind(this)()
+        }
+    }
+
+//    .....
 }
 ```

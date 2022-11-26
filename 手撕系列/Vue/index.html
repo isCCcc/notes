@@ -5,7 +5,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>手撕双向数据绑定 - 2.模板解析</title>
+    <title>自定义 Vue 编码 - 3.生命周期</title>
 </head>
 <body>
 <div id="app">
@@ -20,8 +20,13 @@
         el: '#app',
         data: {
             str: '这是 str 的内容',
-            data: '这是 data 的内容'
-        }
+            data: '这是 data 的内容',
+        },
+
+        beforeCreate(){console.log('beforeCreate' , this.$data,this.$el);},
+        created(){console.log('created', this.$data,this.$el);},
+        beforeMount(){console.log('beforeMount', this.$data,this.$el);},
+        mounted(){console.log('mounted', this.$data,this.$el);},
     })
 </script>
 </body>

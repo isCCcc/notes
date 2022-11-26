@@ -42,7 +42,6 @@ class Vue {
         for (let key in this.$data) {
             const that = this
             let value = this.$data[key]
-            console.log('====');
             Object.defineProperty(this.$data, key, {
                 get() {
                     return value
@@ -77,15 +76,25 @@ class Vue {
                     return this.$data[vkey]
                 })
             } else if (item.nodeType === 1) {  // node节点：递归解析
-
-                if (item.hasAttribute('@click')) {   // 若该元素节点上绑定了 click 事件
+                // 若该元素节点上绑定了 click 事件
+                if (item.hasAttribute('@click')) {
                     const vkey = item.getAttribute('@click').trim()  // 获取绑定的事件名
                     item.addEventListener('click', (event) => {
                         const eventFn = this.$options.methods[vkey].bind(this)  // 改变this指向，并执行 methods中对应的函数
                         eventFn(event)
                     })
                 }
-
+                // 该元素若绑定了v-model，则绑定input事件，实现双向数据绑定
+                if (item.hasAttribute('v-model')) {
+                    const vkey = item.getAttribute('v-model').trim()  // 获取绑定的事件名
+                    if(this.hasOwnProperty(vkey)){
+                        item.value=this.$data[vkey]
+                    }
+                    item.addEventListener('input',(e)=>{
+                        this[vkey]=item.value
+                    })
+                }
+                // 该元素为结点元素，继续递归解析
                 if (item.childNodes.length > 0) {
                     this.complie(item)
                 }

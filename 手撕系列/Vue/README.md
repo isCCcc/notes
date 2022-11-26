@@ -188,13 +188,13 @@ class Vue {
 ## 5 - 数据劫持
 
 > 当前代码 bug：
->   
+>
 >   - 无法在 options 配置对象中直接获取 this.data
-> 
+>
 > 解：
-> 
+>
 >   - 使用 Object.defineProperty 对 data 进行数据劫持，将数据挂载到 this 身上
-> 
+>
 > 注：
 >   - 自此完成 data 和 UI 界面的绑定
 
@@ -203,10 +203,10 @@ class Vue {
 class Vue {
     constructor(options) {
         // ......其他代码编写.....
-        
+
         this.$data = options.data
         this.proxyData()
-        
+
         // ......其他代码编写.....
     }
 
@@ -233,13 +233,13 @@ class Vue {
 //html 中调用 ---------------------
 new Vue({
     el: '#app',
-    data:{
-        str:'data1'
+    data: {
+        str: 'data1'
     },
-    methods:{
-        btn(){
+    methods: {
+        btn() {
             console.log(this.str);   // 可以直接获取到str属性
-            this.str='data2'
+            this.str = 'data2'
             console.log(this.str);   // str属性正确地发生修改
         }
     }
@@ -249,15 +249,15 @@ new Vue({
 ## 6 - 更新视图
 
 > 当前代码bug：
-> 
+>
 >   - 在html页面中触发data中任意属性的set事件，数据发生变化，但页面无法更新
-> 
+>
 > 分析：
->   
+>
 >   - 缺乏监听器，监听数据发生变化后，动态地更新页面
-> 
+>
 > 实现思路：
-> 
+>
 >1. 在解析模板时，我们动态的为每个data中的属性订阅数据，绑定监听函数;
 >
 >2. 创建一个 `Watch` 构造函数,用于更改视图;
@@ -275,7 +275,7 @@ class Vue {
         this.observe()
         // ......其他代码编写.....
     }
-    
+
     // ......其他代码编写.....
 
     // 触发data中地数据发生变化时，执行update更新视图 ---------------------------------- 要点三
@@ -314,7 +314,7 @@ class Vue {
                         }
                         this.$watchEvent[vkey].push(watcher)
                     }
-                    
+
                     return this.$data[vkey]
                 })
             } else if (item.nodeType === 1) {  // node节点：递归解析
@@ -336,6 +336,68 @@ class Watch {
     // 执行更新操作
     update() {
         this.node[this.attr] = this.vm[this.key]
+    }
+}
+```
+
+## 7 - 双向数据绑定 v-model
+
+> Vue 中的 v-model，实际上是 `v-on` 和 `v-input` 的语法糖；
+>
+> 也就是说，我们只需要在将 UI 和 data 进行绑定后，添加 input 事件，即可完成 data 更新，UI 更新的功能。
+
+```html
+// html 调用
+<div id="app">
+    {{str}}
+    <br>
+    <button
+            @click="btn">按钮
+    </button>
+    <br>
+    <input v-model="str">
+</div>
+```
+
+```javascript
+// html 调用
+new Vue({
+    el: '#app',
+    data: {
+        str: 'data1'
+    },
+    methods: {
+        btn() {
+            console.log(this.str);
+            this.str = 'data2'
+            console.log(this.str);
+        }
+    }
+})
+
+// Vue.js 编码----------------------
+class Vue {
+    complie(node) {
+        node.childNodes.forEach(item => {
+            if (item.nodeType === 3) {        // 文本节点：替换数据
+                // ........其他编码.........
+            } else if (item.nodeType === 1) {  // node节点：递归解析
+                // ........其他编码.........
+
+                // 该元素若绑定了v-model，则绑定input事件，实现双向数据绑定
+                if (item.hasAttribute('v-model')) {
+                    const vkey = item.getAttribute('v-model').trim()  // 获取绑定的事件名
+                    if (this.hasOwnProperty(vkey)) {
+                        item.value = this.$data[vkey]
+                    }
+                    item.addEventListener('input', (e) => {
+                        this[vkey] = item.value
+                    })
+                }
+
+                // ........其他编码.........
+            }
+        })
     }
 }
 ```
